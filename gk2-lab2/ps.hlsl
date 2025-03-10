@@ -24,13 +24,34 @@ cbuffer cbLighting : register(b1) //Pixel Shader constant buffer slot 1
 //TODO : 0.8. Modify pixel shader input structure to match vertex shader output
 struct PSInput
 {
-	float4 pos : SV_POSITION;
-	float4 col : COLOR;
+    float4 pos : SV_POSITION;
+    float globalPos : POSITION;
+    float4 normal : NORMAL;
+    float4 view : VIEW;
 };
 
-float4 main(PSInput i) : SV_TARGET
+float4 main(PSInput input) : SV_TARGET
 {
 	//TODO : 0.9. Calculate output color using Phong Illumination Model
-
-	return i.col; // Replace with correct implementation
+	
+    float ka = lighting.surface[0];
+    float4 kd = lighting.surface[1] * surfaceColor;
+    float ks = lighting.surface[2];
+    float m = lighting.surface[3];
+    
+    // ambient
+    float4 col = lighting.ambient * ka;
+    
+    for (int i = 0; i < 3; ++i)
+    {
+        float4 n = input.normal;
+        float4 l = normalize(lighting.lights[i].position - input.globalPos);
+        float4 v = normalize(input.view);
+        float4 r = normalize(reflect(-v, n));
+              
+        col += lighting.lights[i].color * kd * (n * l);
+        col += lighting.lights[i].color * ks * (pow(r * v, m));
+    }
+	
+    return saturate(col); // Replace with correct implementation
 }

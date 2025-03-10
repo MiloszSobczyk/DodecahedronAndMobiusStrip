@@ -65,7 +65,7 @@ ButterflyDemo::ButterflyDemo(HINSTANCE hInstance)
 	m_vs = m_device.CreateVertexShader(vsCode);
 	m_ps = m_device.CreatePixelShader(psCode);
 
-	//TODO : 0.3. Change input layout to match new vertex structure
+	//DONE : 0.3. Change input layout to match new vertex structure
 	m_il = m_device.CreateInputLayout(VertexPositionNormal::Layout, vsCode);
 
 	//Billboard shaders
