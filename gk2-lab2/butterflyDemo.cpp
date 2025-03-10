@@ -83,8 +83,8 @@ ButterflyDemo::ButterflyDemo(HINSTANCE hInstance)
 
 	//Meshes
 
-	//TODO : 0.2. Create a shaded box model instead of colored one 
-	m_box = Mesh::ColoredBox(m_device);
+	//DONE : 0.2. Create a shaded box model instead of colored one 
+	m_box = Mesh::ShadedBox(m_device);
 
 	m_pentagon = Mesh::Pentagon(m_device);
 	m_wing = Mesh::DoubleRect(m_device, 2.0f);
