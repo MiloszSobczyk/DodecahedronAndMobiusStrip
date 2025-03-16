@@ -139,33 +139,98 @@ void ButterflyDemo::CreateRenderStates()
 void ButterflyDemo::CreateDodecahadronMtx()
 //Compute dodecahedronMtx and mirrorMtx
 {
-	//TODO : 1.01. calculate m_dodecahedronMtx matrices
+    //TODO : 1.01. calculate m_dodecahedronMtx matrices
+    XMStoreFloat4x4(&m_dodecahedronMtx[0], XMMatrixRotationX(XM_PIDIV2) * XMMatrixTranslation(0.f, -DODECAHEDRON_H / 2.f, 0.f));
+    XMStoreFloat4x4(&m_dodecahedronMtx[1], XMLoadFloat4x4(&m_dodecahedronMtx[0]) * XMMatrixRotationY(XM_PI) * XMMatrixRotationZ(DODECAHEDRON_A - XM_PI));
 
-	//TODO : 1.12. calculate m_mirrorMtx matrices
+    for (int i = 2; i <= 5; i++)
+    {
+        XMStoreFloat4x4(&m_dodecahedronMtx[i], XMLoadFloat4x4(&m_dodecahedronMtx[i - 1]) * XMMatrixRotationY(2.f / 5.f * XM_PI));
+    }
+
+    for (int i = 6; i <= 11; i++)
+    {
+        XMStoreFloat4x4(&m_dodecahedronMtx[i], XMLoadFloat4x4(&m_dodecahedronMtx[i - 6]) * XMMatrixRotationZ(XM_PI));
+    }
+
+    //TODO : 1.12. calculate m_mirrorMtx matrices
 }
 
 XMFLOAT3 ButterflyDemo::MoebiusStripPos(float t, float s)
 //TODO : 1.04. Compute the position of point on the Moebius strip for parameters t and s
 {
-	return {};
+	return { 
+		cosf(t) * (MOEBIUS_R + MOEBIUS_W * s * cosf(0.5f * t)),
+		sinf(t) * (MOEBIUS_R + MOEBIUS_W * s * cosf(0.5f * t)),
+		MOEBIUS_W * s * sinf(0.5f * t)
+	};
 }
 
 XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
-//TODO : 1.05. Return the s-derivative of point on the Moebius strip for parameters t and s
+// TODO: 1.05. Return the s-derivative of point on the Moebius strip for parameters t and s
 {
-	return {};
+	float dx_ds = MOEBIUS_W * cosf(t) * cosf(0.5f * t);
+	float dy_ds = MOEBIUS_W * sinf(t) * cosf(0.5f * t);
+	float dz_ds = MOEBIUS_W * sinf(0.5f * t);
+
+	return XMVECTOR{dx_ds, dy_ds, dz_ds, 0.0f};
 }
 
 XMVECTOR ButterflyDemo::MoebiusStripDt(float t, float s)
-//TODO : 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
+// TODO: 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
 {
-	return {};
+	float dx_dt = -MOEBIUS_R * sinf(t) -0.5f * s * MOEBIUS_W * sinf(0.5f * t) * cosf(t) 
+		- MOEBIUS_W * s * cos(0.5f * t) * sinf(t);
+	float dy_dt = MOEBIUS_R * cosf(t) - 0.5f * s * MOEBIUS_W * sinf(0.5f * t) * sinf(t)
+		+ MOEBIUS_W * s * cos(0.5f * t) * cosf(t);
+	float dz_dt = 0.5f * s * MOEBIUS_W * cosf(t);
+
+	return XMVECTOR{ dx_dt, dy_dt, dz_dt, 0.0f };
 }
 
 void ButterflyDemo::CreateMoebuisStrip()
-//TODO : 1.07. Create Moebius strip mesh
 {
-	
+	std::vector<VertexPositionNormal> vertices;
+	std::vector<unsigned short> indices;
+
+	const unsigned int numSegments = MOEBIUS_N;
+	const float maxT = 4.0f * XM_PI;
+	const float tStep = maxT / numSegments;
+
+	for (unsigned int i = 0; i <= numSegments; ++i)
+	{
+		float t = i * tStep;
+		for (int s_dir = -1; s_dir <= 1; s_dir += 2)
+		{
+			float s = static_cast<float>(s_dir);
+			XMFLOAT3 pos = MoebiusStripPos(t, s);
+
+			XMVECTOR ds = MoebiusStripDs(t, s);
+			XMVECTOR dt = MoebiusStripDt(t, s);
+			XMVECTOR normal = XMVector3Normalize(XMVector3Cross(ds, dt));
+
+			XMFLOAT3 normalFloat3;
+			XMStoreFloat3(&normalFloat3, normal);
+
+			vertices.emplace_back(pos, normalFloat3);
+		}
+	}
+
+	for (unsigned int i = 0; i < numSegments; ++i)
+	{
+		unsigned short currentBase = i * 2;
+		unsigned short nextBase = (i + 1) * 2;
+
+		indices.push_back(currentBase);
+		indices.push_back(nextBase);
+		indices.push_back(currentBase + 1);
+
+		indices.push_back(currentBase + 1);
+		indices.push_back(nextBase);
+		indices.push_back(nextBase + 1);
+	}
+
+	m_moebius = Mesh::SimpleTriMesh(m_device, vertices, indices);
 }
 #pragma endregion
 
@@ -274,18 +339,27 @@ void ButterflyDemo::DrawBox()
 }
 
 void ButterflyDemo::DrawDodecahedron(bool colors)
-//Draw dodecahedron. If color is true, use render faces with corresponding colors. Otherwise render using white color
 {
-	//TODO : 1.02. Draw all dodecahedron sides with colors - ignore function parameter for now
+	for (int i = 0; i < 12; i++)
+	{
+		UpdateBuffer(m_cbWorld, m_dodecahedronMtx[i]);
 
-	//TODO : 1.14. Modify function so if colors parameter is set to false, all faces are drawn white instead
-	
+		if (colors)
+			UpdateBuffer(m_cbSurfaceColor, COLORS[i]);
+		else
+			UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		m_pentagon.Render(m_device.context());
+	}
 }
 
+
 void ButterflyDemo::DrawMoebiusStrip()
-//TODO : 1.08. Draw the Moebius strip mesh
 {
-	
+	XMFLOAT4X4 worldMtx;
+	XMStoreFloat4x4(&worldMtx, XMMatrixIdentity());
+	UpdateBuffer(m_cbWorld, worldMtx);
+	m_moebius.Render(m_device.context());
 }
 
 void ButterflyDemo::DrawButterfly()
@@ -349,7 +423,7 @@ void ButterflyDemo::Render()
 	Set3Lights();
 	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	//TODO : 1.03. [optional] Comment the following line
-	DrawBox();
+	//DrawBox();
 	DrawMoebiusStrip();
 	DrawButterfly();
 	m_device.context()->OMSetDepthStencilState(m_dssNoDepthWrite.get(), 0);
