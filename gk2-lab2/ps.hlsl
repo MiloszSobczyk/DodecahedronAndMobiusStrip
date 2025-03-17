@@ -1,57 +1,64 @@
 struct Light
 {
-	float4 position;
-	float4 color;
+    float4 position;
+    float4 color;
 };
 
 struct Lighting
 {
-	float4 ambient;
-	float4 surface;
-	Light lights[3];
+    float4 ambient;
+    float4 surface;
+    Light lights[3];
 };
 
 cbuffer cbSurfaceColor : register(b0) //Pixel Shader constant buffer slot 0 - matches slot in psBilboard.hlsl
 {
-	float4 surfaceColor;
+    float4 surfaceColor;
 }
 
 cbuffer cbLighting : register(b1) //Pixel Shader constant buffer slot 1
 {
-	Lighting lighting;
+    Lighting lighting;
 }
 
-//DONE : 0.8. Modify pixel shader input structure to match vertex shader output
+//TODO : 0.8. Modify pixel shader input structure to match vertex shader output
 struct PSInput
 {
     float4 pos : SV_POSITION;
-    float globalPos : POSITION;
+    float4 pos_global : POS_GLOBAL;
     float4 normal : NORMAL;
     float4 view : VIEW;
+
 };
 
-float4 main(PSInput input) : SV_TARGET
+float4 calculatePhong(float4 surface, Light light, PSInput i)
 {
-	//DONE : 0.9. Calculate output color using Phong Illumination Model
-	
-    float ka = lighting.surface[0];
-    float4 kd = lighting.surface[1] * surfaceColor;
-    float ks = lighting.surface[2];
-    float m = lighting.surface[3];
+    float ka = surface[0];
+    float4 kd = surface[1] * surfaceColor;
+    float ks = surface[2];
+    float m = surface[3];
     
-    // ambient
-    float4 col = lighting.ambient * ka;
+    // diffuse
+    float4 lightDir = normalize(light.position - i.pos_global);
+    float4 diff = i.normal * lightDir;
+
+    // specular
+    float4 viewDir = normalize(i.view - i.pos_global);
+    float4 reflectDir = reflect(-lightDir, i.normal);
     
-    for (int i = 0; i < 3; ++i)
+    float spec1 = pow(max(dot(viewDir, reflectDir), 0.0f), m);
+    
+    return saturate(light.color * kd * diff + light.color * ks * spec1);
+}
+
+float4 main(PSInput i) : SV_TARGET
+{
+    //TODO : 0.9. Calculate output color using Phong Illumination Model
+    float4 color = lighting.ambient * lighting.surface[0];
+    for (int j = 0; j < 3; j++)
     {
-        float4 n = input.normal;
-        float4 l = normalize(lighting.lights[i].position - input.globalPos);
-        float4 v = normalize(input.view);
-        float4 r = normalize(reflect(-v, n));
-              
-        col += lighting.lights[i].color * kd * (n * l);
-        col += lighting.lights[i].color * ks * (pow(r * v, m));
+        color += calculatePhong(lighting.surface, lighting.lights[j], i);
     }
-	
-    return saturate(col); // Replace with correct implementation
+
+    return color;
 }

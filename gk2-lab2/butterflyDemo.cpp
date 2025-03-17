@@ -221,13 +221,13 @@ void ButterflyDemo::CreateMoebuisStrip()
 		unsigned short currentBase = i * 2;
 		unsigned short nextBase = (i + 1) * 2;
 
-		indices.push_back(currentBase);
 		indices.push_back(nextBase);
+		indices.push_back(currentBase);
 		indices.push_back(currentBase + 1);
 
 		indices.push_back(currentBase + 1);
-		indices.push_back(nextBase);
 		indices.push_back(nextBase + 1);
+		indices.push_back(nextBase);
 	}
 
 	m_moebius = Mesh::SimpleTriMesh(m_device, vertices, indices);
