@@ -185,19 +185,19 @@ std::vector<VertexPositionNormal> mini::Mesh::DoubleRectVerts(float width, float
 //TODO : 1.09. Create vertex list for the butterfly wing
 {
 	return {
-		// Front Face (+Z)
-		{ { -0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, -1.0f } },
-		{ { -0.5f * width, height, 0.f },	{ 0.0f, 0.0f, -1.0f } },
-		{ { 0.f, 0.f, 0.f },				{ 0.0f, 0.0f, -1.0f } },
-		{ { 0.f, height, 0.f },				{ 0.0f, 0.0f, -1.0f } },
-		{ { +0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, -1.0f } },
-		{ { +0.5f * width, height, 0.f },	{ 0.0f, 0.0f, -1.0f } },
 		{ { -0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, 1.0f } },
 		{ { -0.5f * width, height, 0.f },	{ 0.0f, 0.0f, 1.0f } },
 		{ { 0.f, 0.f, 0.f },				{ 0.0f, 0.0f, 1.0f } },
 		{ { 0.f, height, 0.f },				{ 0.0f, 0.0f, 1.0f } },
 		{ { +0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, 1.0f } },
 		{ { +0.5f * width, height, 0.f },	{ 0.0f, 0.0f, 1.0f } },
+
+		{ { -0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, -1.0f } },
+		{ { -0.5f * width, height, 0.f },	{ 0.0f, 0.0f, -1.0f } },
+		{ { 0.f, 0.f, 0.f },				{ 0.0f, 0.0f, -1.0f } },
+		{ { 0.f, height, 0.f },				{ 0.0f, 0.0f, -1.0f } },
+		{ { +0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, -1.0f } },
+		{ { +0.5f * width, height, 0.f },	{ 0.0f, 0.0f, -1.0f } },
 	};
 }
 
