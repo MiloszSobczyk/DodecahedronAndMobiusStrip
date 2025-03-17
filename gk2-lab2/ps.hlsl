@@ -25,7 +25,7 @@ cbuffer cbLighting : register(b1) //Pixel Shader constant buffer slot 1
 struct PSInput
 {
     float4 pos : SV_POSITION;
-    float4 pos_global : POS_GLOBAL;
+    float4 pos_global : POSITION;
     float4 normal : NORMAL;
     float4 view : VIEW;
 
@@ -33,18 +33,18 @@ struct PSInput
 
 float4 calculatePhong(float4 surface, Light light, PSInput i)
 {
-    float ka = surface[0];
-    float4 kd = surface[1] * surfaceColor;
+    float surf1 = surface[1];
+    float4 kd = surf1 * surfaceColor;
     float ks = surface[2];
     float m = surface[3];
     
     // diffuse
     float4 lightDir = normalize(light.position - i.pos_global);
-    float4 diff = i.normal * lightDir;
+    float4 diff = max(dot(i.normal, lightDir), 0.0f);
 
     // specular
     float4 viewDir = normalize(i.view - i.pos_global);
-    float4 reflectDir = reflect(-lightDir, i.normal);
+    float4 reflectDir = normalize(reflect(-lightDir, i.normal));
     
     float spec1 = pow(max(dot(viewDir, reflectDir), 0.0f), m);
     
