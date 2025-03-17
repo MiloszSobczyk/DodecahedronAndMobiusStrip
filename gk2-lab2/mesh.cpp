@@ -184,13 +184,33 @@ std::vector<unsigned short> mini::Mesh::PentagonIdxs()
 std::vector<VertexPositionNormal> mini::Mesh::DoubleRectVerts(float width, float height)
 //TODO : 1.09. Create vertex list for the butterfly wing
 {
-	return { };
+	return {
+		// Front Face (+Z)
+		{ { -0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, -1.0f } },
+		{ { -0.5f * width, height, 0.f },	{ 0.0f, 0.0f, -1.0f } },
+		{ { 0.f, 0.f, 0.f },				{ 0.0f, 0.0f, -1.0f } },
+		{ { 0.f, height, 0.f },				{ 0.0f, 0.0f, -1.0f } },
+		{ { +0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, -1.0f } },
+		{ { +0.5f * width, height, 0.f },	{ 0.0f, 0.0f, -1.0f } },
+		{ { -0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, 1.0f } },
+		{ { -0.5f * width, height, 0.f },	{ 0.0f, 0.0f, 1.0f } },
+		{ { 0.f, 0.f, 0.f },				{ 0.0f, 0.0f, 1.0f } },
+		{ { 0.f, height, 0.f },				{ 0.0f, 0.0f, 1.0f } },
+		{ { +0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, 1.0f } },
+		{ { +0.5f * width, height, 0.f },	{ 0.0f, 0.0f, 1.0f } },
+	};
 }
 
 std::vector<unsigned short> mini::Mesh::DoubleRectIdxs()
 //TODO : 1.09. Create index list for the butterfly wing
 {
-	return {  };
+	return { 
+		0, 1, 2,  2, 1, 3,
+		2, 3, 4,  4, 3, 5,
+
+		8, 7, 6,  9, 7, 8,
+		10, 9, 8,  11, 9, 10,
+	};
 }
 
 std::vector<DirectX::XMFLOAT3> mini::Mesh::BillboardVerts(float width, float height)

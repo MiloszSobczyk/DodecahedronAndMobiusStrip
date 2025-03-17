@@ -87,7 +87,7 @@ ButterflyDemo::ButterflyDemo(HINSTANCE hInstance)
 	m_box = Mesh::ShadedBox(m_device);
 
 	m_pentagon = Mesh::Pentagon(m_device);
-	m_wing = Mesh::DoubleRect(m_device, 2.0f);
+	m_wing = Mesh::DoubleRect(m_device, WING_W, WING_H);
 	CreateMoebuisStrip();
 
 	m_bilboard = Mesh::Billboard(m_device, 2.0f);
@@ -261,6 +261,8 @@ void ButterflyDemo::UpdateCameraCB(DirectX::XMFLOAT4X4 cameraMtx)
 void ButterflyDemo::UpdateButterfly(float dtime)
 //TODO : 1.10. Compute the matrices for butterfly wings. Position on the strip is determined based on time
 {
+	using namespace DirectX;
+
 	static float lap = 0.0f;
 	lap += dtime;
 	while (lap > LAP_TIME)
@@ -273,7 +275,16 @@ void ButterflyDemo::UpdateButterfly(float dtime)
 	if (a > WING_MAX_A)
 		a = 2 * WING_MAX_A - a;
 	//Write the rest of code here
-	
+
+	auto b = MoebiusStripDs(t, 0);
+	auto t2 = MoebiusStripDt(t, 0);
+	auto n = XMVector3Normalize(XMVector3Cross(b, t2));
+	auto pos = MoebiusStripPos(t, 0);
+
+	auto matrix = XMMATRIX(XMVector3Normalize(b), XMVector3Normalize(n), XMVector3Normalize(t2), { pos.x, pos.y, pos.z, 1.f });
+
+	XMStoreFloat4x4(&m_wingMtx[0], XMMatrixRotationY(XM_PIDIV2) * XMMatrixRotationZ(a) * matrix);
+	XMStoreFloat4x4(&m_wingMtx[1], XMMatrixRotationY(XM_PIDIV2) * XMMatrixRotationZ(-a) * matrix);
 }
 #pragma endregion
 
@@ -365,7 +376,14 @@ void ButterflyDemo::DrawMoebiusStrip()
 void ButterflyDemo::DrawButterfly()
 //TODO : 1.11. Draw the butterfly
 {
-	
+	XMFLOAT4X4 worldMtx;
+	XMStoreFloat4x4(&worldMtx, XMMatrixIdentity());
+
+	for (int i = 0; i < 2; ++i)
+	{
+		UpdateBuffer(m_cbWorld, m_wingMtx[i]);
+		m_wing.Render(m_device.context());
+	}
 }
 
 void ButterflyDemo::DrawBillboards()
