@@ -140,7 +140,7 @@ void ButterflyDemo::CreateRenderStates()
 void ButterflyDemo::CreateDodecahadronMtx()
 //Compute dodecahedronMtx and mirrorMtx
 {
-    //TODO : 1.01. calculate m_dodecahedronMtx matrices
+    //DONE : 1.01. calculate m_dodecahedronMtx matrices
     XMStoreFloat4x4(&m_dodecahedronMtx[0], XMMatrixRotationX(XM_PIDIV2) * XMMatrixTranslation(0.f, -DODECAHEDRON_H / 2.f, 0.f));
     XMStoreFloat4x4(&m_dodecahedronMtx[1], XMLoadFloat4x4(&m_dodecahedronMtx[0]) * XMMatrixRotationY(XM_PI) * XMMatrixRotationZ(DODECAHEDRON_A - XM_PI));
 
@@ -154,7 +154,7 @@ void ButterflyDemo::CreateDodecahadronMtx()
         XMStoreFloat4x4(&m_dodecahedronMtx[i], XMLoadFloat4x4(&m_dodecahedronMtx[i - 6]) * XMMatrixRotationZ(XM_PI));
     }
 
-    //TODO : 1.12. calculate m_mirrorMtx matrices
+    //DONE : 1.12. calculate m_mirrorMtx matrices
 
 	for (int i = 0; i < 12; ++i)
 	{
@@ -165,7 +165,7 @@ void ButterflyDemo::CreateDodecahadronMtx()
 }
 
 XMFLOAT3 ButterflyDemo::MoebiusStripPos(float t, float s)
-//TODO : 1.04. Compute the position of point on the Moebius strip for parameters t and s
+//DONE : 1.04. Compute the position of point on the Moebius strip for parameters t and s
 {
 	return { 
 		cosf(t) * (MOEBIUS_R + MOEBIUS_W * s * cosf(0.5f * t)),
@@ -175,7 +175,7 @@ XMFLOAT3 ButterflyDemo::MoebiusStripPos(float t, float s)
 }
 
 XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
-// TODO: 1.05. Return the s-derivative of point on the Moebius strip for parameters t and s
+// DONE: 1.05. Return the s-derivative of point on the Moebius strip for parameters t and s
 {
 	float dx_ds = MOEBIUS_W * cosf(t) * cosf(0.5f * t);
 	float dy_ds = MOEBIUS_W * sinf(t) * cosf(0.5f * t);
@@ -185,7 +185,7 @@ XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
 }
 
 XMVECTOR ButterflyDemo::MoebiusStripDt(float t, float s)
-// TODO: 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
+// DONE: 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
 {
 	float dx_dt = -MOEBIUS_R * sinf(t) -0.5f * s * MOEBIUS_W * sinf(0.5f * t) * cosf(t) 
 		- MOEBIUS_W * s * cos(0.5f * t) * sinf(t);
@@ -267,7 +267,7 @@ void ButterflyDemo::UpdateCameraCB(DirectX::XMFLOAT4X4 cameraMtx)
 }
 
 void ButterflyDemo::UpdateButterfly(float dtime)
-//TODO : 1.10. Compute the matrices for butterfly wings. Position on the strip is determined based on time
+//DONE : 1.10. Compute the matrices for butterfly wings. Position on the strip is determined based on time
 {
 	using namespace DirectX;
 
@@ -382,7 +382,7 @@ void ButterflyDemo::DrawMoebiusStrip()
 }
 
 void ButterflyDemo::DrawButterfly()
-//TODO : 1.11. Draw the butterfly
+//DONE : 1.11. Draw the butterfly
 {
 	XMFLOAT4X4 worldMtx;
 	XMStoreFloat4x4(&worldMtx, XMMatrixIdentity());
@@ -463,7 +463,7 @@ void ButterflyDemo::Render()
 	//render the rest of the scene with all lights
 	Set3Lights();
 	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	//TODO : 1.03. [optional] Comment the following line
+	//DONE : 1.03. [optional] Comment the following line
 	//DrawBox();
 	DrawMoebiusStrip();
 	DrawButterfly();

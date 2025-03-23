@@ -182,7 +182,7 @@ std::vector<unsigned short> mini::Mesh::PentagonIdxs()
 }
 
 std::vector<VertexPositionNormal> mini::Mesh::DoubleRectVerts(float width, float height)
-//TODO : 1.09. Create vertex list for the butterfly wing
+//DONE : 1.09. Create vertex list for the butterfly wing
 {
 	return {
 		{ { -0.5f * width, 0.f, 0.f },		{ 0.0f, 0.0f, 1.0f } },
@@ -202,7 +202,7 @@ std::vector<VertexPositionNormal> mini::Mesh::DoubleRectVerts(float width, float
 }
 
 std::vector<unsigned short> mini::Mesh::DoubleRectIdxs()
-//TODO : 1.09. Create index list for the butterfly wing
+//DONE : 1.09. Create index list for the butterfly wing
 {
 	return { 
 		0, 1, 2,  2, 1, 3,

@@ -21,7 +21,7 @@ cbuffer cbLighting : register(b1) //Pixel Shader constant buffer slot 1
     Lighting lighting;
 }
 
-//TODO : 0.8. Modify pixel shader input structure to match vertex shader output
+//DONE : 0.8. Modify pixel shader input structure to match vertex shader output
 struct PSInput
 {
     float4 pos : SV_POSITION;
@@ -53,7 +53,7 @@ float4 calculatePhong(float4 surface, Light light, PSInput i)
 
 float4 main(PSInput i) : SV_TARGET
 {
-    //TODO : 0.9. Calculate output color using Phong Illumination Model
+    //DONE : 0.9. Calculate output color using Phong Illumination Model
     float4 color = lighting.ambient * lighting.surface[0];
     for (int j = 0; j < 3; j++)
     {
