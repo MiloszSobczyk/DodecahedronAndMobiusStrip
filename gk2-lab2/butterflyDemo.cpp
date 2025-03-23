@@ -135,9 +135,12 @@ void ButterflyDemo::CreateRenderStates()
 
 	m_rsCCW = m_device.CreateRasterizerState(rsDesc);
 
+	//DONE : 1.26. Setup alpha blending state
 	BlendDescription bsDesc;
-	//TODO : 1.26. Setup alpha blending state
-
+	bsDesc.RenderTarget[0].BlendEnable = true;
+	bsDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	bsDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	bsDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	m_bsAlpha = m_device.CreateBlendState(bsDesc);
 
 	//TODO : 1.30. Setup additive blending state
@@ -164,10 +167,12 @@ void ButterflyDemo::CreateDodecahadronMtx()
 
     //DONE : 1.12. calculate m_mirrorMtx matrices
 
-	for (int i = 0; i < 12; ++i)
+	XMMATRIX m_scale = XMMatrixScaling(1.0f, 1.0f, -1.0f);
+	for (size_t i = 0; i < 12; i++)
 	{
-		auto D = XMLoadFloat4x4(&m_dodecahedronMtx[i]);
-		XMStoreFloat4x4(&m_mirrorMtx[i], D * XMMatrixScaling(1, 1, -1) * XMMatrixInverse(nullptr, D));
+		XMMATRIX m = XMLoadFloat4x4(&m_dodecahedronMtx[i]);
+		XMMATRIX m_inverse = XMMatrixInverse(nullptr, m);
+		XMStoreFloat4x4(&m_mirrorMtx[i], m_inverse * m_scale * m);
 	}
 
 }
@@ -176,18 +181,18 @@ XMFLOAT3 ButterflyDemo::MoebiusStripPos(float t, float s)
 //DONE : 1.04. Compute the position of point on the Moebius strip for parameters t and s
 {
 	return { 
-		cosf(t) * (MOEBIUS_R + MOEBIUS_W * s * cosf(0.5f * t)),
-		sinf(t) * (MOEBIUS_R + MOEBIUS_W * s * cosf(0.5f * t)),
-		MOEBIUS_W * s * sinf(0.5f * t)
+		XMScalarCos(t) * (MOEBIUS_R + MOEBIUS_W * s * XMScalarCos(0.5f * t)),
+		XMScalarSin(t) * (MOEBIUS_R + MOEBIUS_W * s * XMScalarCos(0.5f * t)),
+		MOEBIUS_W * s * XMScalarSin(0.5f * t)
 	};
 }
 
 XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
 // DONE: 1.05. Return the s-derivative of point on the Moebius strip for parameters t and s
 {
-	float dx_ds = MOEBIUS_W * cosf(t) * cosf(0.5f * t);
-	float dy_ds = MOEBIUS_W * sinf(t) * cosf(0.5f * t);
-	float dz_ds = MOEBIUS_W * sinf(0.5f * t);
+	float dx_ds = MOEBIUS_W * XMScalarCos(t) * XMScalarCos(0.5f * t);
+	float dy_ds = MOEBIUS_W * XMScalarSin(t) * XMScalarCos(0.5f * t);
+	float dz_ds = MOEBIUS_W * XMScalarSin(0.5f * t);
 
 	return XMVECTOR{dx_ds, dy_ds, dz_ds, 0.0f};
 }
@@ -195,11 +200,11 @@ XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
 XMVECTOR ButterflyDemo::MoebiusStripDt(float t, float s)
 // DONE: 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
 {
-	float dx_dt = -MOEBIUS_R * sinf(t) -0.5f * s * MOEBIUS_W * sinf(0.5f * t) * cosf(t) 
-		- MOEBIUS_W * s * cos(0.5f * t) * sinf(t);
-	float dy_dt = MOEBIUS_R * cosf(t) - 0.5f * s * MOEBIUS_W * sinf(0.5f * t) * sinf(t)
-		+ MOEBIUS_W * s * cos(0.5f * t) * cosf(t);
-	float dz_dt = 0.5f * s * MOEBIUS_W * cosf(t);
+	float dx_dt = -MOEBIUS_R * XMScalarSin(t) -0.5f * s * MOEBIUS_W * XMScalarSin(0.5f * t) * XMScalarCos(t)
+		- MOEBIUS_W * s * XMScalarCos(0.5f * t) * XMScalarSin(t);
+	float dy_dt = MOEBIUS_R * XMScalarCos(t) - 0.5f * s * MOEBIUS_W * XMScalarSin(0.5f * t) * XMScalarSin(t)
+		+ MOEBIUS_W * s * XMScalarCos(0.5f * t) * XMScalarCos(t);
+	float dz_dt = 0.5f * s * MOEBIUS_W * XMScalarCos(t);
 
 	return XMVECTOR{ dx_dt, dy_dt, dz_dt, 0.0f };
 }
@@ -337,13 +342,15 @@ void ButterflyDemo::Set1Light()
 
 void ButterflyDemo::Set3Lights()
 //Setup one white positional light at the camera
-//TODO : 1.28. Setup two additional positional lights, green and blue.
+//DONE : 1.28. Setup two additional positional lights, green and blue.
 {
 	Lighting l{
 		/*.ambientColor = */ XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
 		/*.surface = */ XMFLOAT4(0.2f, 0.8f, 0.8f, 200.0f),
 		/*.lights =*/{
 			{ /*.position =*/ m_camera.getCameraPosition(), /*.color =*/ XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+			{ /*.position =*/ GREEN_LIGHT_POS, /*.color =*/ XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+			{ /*.position =*/ BLUE_LIGHT_POS, /*.color =*/ XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
 			//Write the rest of the code here
 
 		}
@@ -470,8 +477,8 @@ void ButterflyDemo::Render()
 	m_device.context()->OMSetBlendState(m_bsAlpha.get(), nullptr, BS_MASK);
 	Set1Light();
 	//DONE : 1.19. Comment the following line for now
-	//DrawDodecahedron(true);
-	//TODO : 1.27. Uncomment the above line again
+	DrawDodecahedron(true);
+	//DONE : 1.27. Uncomment the above line again
 	m_device.context()->OMSetBlendState(nullptr, nullptr, BS_MASK);
 
 	//render the rest of the scene with all lights
@@ -479,8 +486,8 @@ void ButterflyDemo::Render()
 	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	//DONE : 1.03. [optional] Comment the following line
 	//DrawBox();
-	//DrawMoebiusStrip();
-	//DrawButterfly();
+	DrawMoebiusStrip();
+	DrawButterfly();
 	m_device.context()->OMSetDepthStencilState(m_dssNoDepthWrite.get(), 0);
 	DrawBillboards();
 	m_device.context()->OMSetDepthStencilState(nullptr, 0);
