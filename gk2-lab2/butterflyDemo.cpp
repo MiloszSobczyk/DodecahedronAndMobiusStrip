@@ -143,9 +143,14 @@ void ButterflyDemo::CreateRenderStates()
 	bsDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	m_bsAlpha = m_device.CreateBlendState(bsDesc);
 
-	//TODO : 1.30. Setup additive blending state
+	//DONE : 1.30. Setup additive blending state
+	BlendDescription addBsDesc;
+	addBsDesc.RenderTarget[0].BlendEnable = true;
+	addBsDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	addBsDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	addBsDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-	m_bsAdd = m_device.CreateBlendState(bsDesc);
+	m_bsAdd = m_device.CreateBlendState(addBsDesc);
 }
 
 void ButterflyDemo::CreateDodecahadronMtx()
@@ -374,14 +379,13 @@ void ButterflyDemo::DrawBox()
 
 void ButterflyDemo::DrawDodecahedron(bool colors)
 {
+	//DONE : 1.02. Draw all dodecahedron sides with colors - ignore function parameter for now
+	//DONE : 1.14. Modify function so if colors parameter is set to false, all faces are drawn white instead
 	for (int i = 0; i < 12; i++)
 	{
 		UpdateBuffer(m_cbWorld, m_dodecahedronMtx[i]);
 
-		if (colors)
-			UpdateBuffer(m_cbSurfaceColor, COLORS[i]);
-		else
-			UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+		UpdateBuffer(m_cbSurfaceColor, colors ? COLORS[i] : XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 
 		m_pentagon.Render(m_device.context());
 	}
@@ -441,7 +445,6 @@ void ButterflyDemo::DrawMirroredWorld(unsigned int i)
 	XMFLOAT4X4 new_view;
 	XMStoreFloat4x4(&new_view, XMLoadFloat4x4(&m_mirrorMtx[i]) * m_view);
 	UpdateCameraCB(new_view);
-	Set3Lights();
 	DrawMoebiusStrip();
 	DrawButterfly();
 	Set1Light();
@@ -458,8 +461,6 @@ void ButterflyDemo::DrawMirroredWorld(unsigned int i)
 	XMFLOAT4X4 old_view;
 	XMStoreFloat4x4(&old_view, m_view);
 	UpdateCameraCB(old_view);
-
-	UpdateBuffer(m_cbView, m_camera.getViewMatrix());
 
 	//DONE : 1.25. Restore depth stencil state to it's original value
 	m_device.context()->OMSetDepthStencilState(nullptr, 0);

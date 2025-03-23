@@ -214,13 +214,19 @@ std::vector<unsigned short> mini::Mesh::DoubleRectIdxs()
 }
 
 std::vector<DirectX::XMFLOAT3> mini::Mesh::BillboardVerts(float width, float height)
-//TODO : 1.29. Initialize vertex and index list for billboards
+//DONE : 1.29. Initialize vertex and index list for billboards
 {
-	return { };
+	return 
+	{ 
+		{ -0.5f * width, -0.5f * height, 0.0f },
+		{ -0.5f * width, +0.5f * height, 0.0f },
+		{ +0.5f * width, +0.5f * height, 0.0f },
+		{ +0.5f * width, -0.5f * height, 0.0f },
+	};
 }
 
 std::vector<unsigned short> mini::Mesh::BillboardIdx()
-//TODO : 1.29. Initialize vertex and index list for billboards
+//DONE : 1.29. Initialize vertex and index list for billboards
 {
-	return { };
+	return { 0, 1, 2, 0, 2, 3 };
 }
