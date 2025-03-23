@@ -416,22 +416,9 @@ void ButterflyDemo::DrawMirroredWorld(unsigned int i)
 
 	//TODO : 1.15. Setup rasterizer state and view matrix for rendering the mirrored world
 
-	ID3D11RasterizerState* prevState;
-
-	m_device.context()->RSGetState(&prevState);
-	
-	m_device.context()->RSSetState(m_rsCCW.get());
-
-	UpdateBuffer(m_cbView, m_camera.getViewMatrix() * XMLoadFloat4x4(&m_mirrorMtx[i]));
-	UpdateCameraCB(m_camera.getViewMatrix() * XMLoadFloat4x4(&m_mirrorMtx[i]));
-
 	//TODO : 1.16. Draw 3D objects of the mirrored scene - dodecahedron should be drawn with only one light and no colors and without blending
 
-	DrawDodecahedron(false);
-
 	//TODO : 1.17. Restore rasterizer state to it's original value
-
-	m_device.context()->RSSetState(prevState);
 
 	//TODO : 1.37. Setup depth stencil state for rendering mirrored billboards
 	
@@ -465,8 +452,8 @@ void ButterflyDemo::Render()
 	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	//DONE : 1.03. [optional] Comment the following line
 	//DrawBox();
-	DrawMoebiusStrip();
-	DrawButterfly();
+	//DrawMoebiusStrip();
+	//DrawButterfly();
 	m_device.context()->OMSetDepthStencilState(m_dssNoDepthWrite.get(), 0);
 	DrawBillboards();
 	m_device.context()->OMSetDepthStencilState(nullptr, 0);
