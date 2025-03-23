@@ -188,7 +188,7 @@ XMFLOAT3 ButterflyDemo::MoebiusStripPos(float t, float s)
 }
 
 XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
-// DONE: 1.05. Return the s-derivative of point on the Moebius strip for parameters t and s
+//DONE : 1.05. Return the s-derivative of point on the Moebius strip for parameters t and s
 {
 	float dx_ds = MOEBIUS_W * XMScalarCos(t) * XMScalarCos(0.5f * t);
 	float dy_ds = MOEBIUS_W * XMScalarSin(t) * XMScalarCos(0.5f * t);
@@ -198,7 +198,7 @@ XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
 }
 
 XMVECTOR ButterflyDemo::MoebiusStripDt(float t, float s)
-// DONE: 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
+//DONE : 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
 {
 	float dx_dt = -MOEBIUS_R * XMScalarSin(t) -0.5f * s * MOEBIUS_W * XMScalarSin(0.5f * t) * XMScalarCos(t)
 		- MOEBIUS_W * s * XMScalarCos(0.5f * t) * XMScalarSin(t);
