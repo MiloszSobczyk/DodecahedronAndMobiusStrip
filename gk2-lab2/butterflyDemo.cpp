@@ -118,7 +118,7 @@ void ButterflyDemo::CreateRenderStates()
 	writeDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 	m_dssStencilWrite = m_device.CreateDepthStencilState(writeDesc);
 
-	//TODO : 1.36. Setup depth stencil state for stencil test for billboards
+	//DONE : 1.36. Setup depth stencil state for stencil test for billboards
 	DepthStencilDescription billboardTestDesc;
 	billboardTestDesc.StencilEnable = true;
 	billboardTestDesc.BackFace.StencilFunc = D3D11_COMPARISON_NEVER;
@@ -476,9 +476,11 @@ void ButterflyDemo::DrawMirroredWorld(unsigned int i)
 	//DONE : 1.17. Restore rasterizer state to it's original value
 	m_device.context()->RSSetState(nullptr);
 
-	//TODO : 1.37. Setup depth stencil state for rendering mirrored billboards
+	//DONE : 1.37. Setup depth stencil state for rendering mirrored billboards
+	m_device.context()->OMSetDepthStencilState(m_dssStencilTestNoDepthWrite.get(), i + 1);
 	
-	//TODO : 1.38. Draw mirrored billboards - they need to be drawn after restoring rasterizer state, but with mirrored view matrix
+	//DONE : 1.38. Draw mirrored billboards - they need to be drawn after restoring rasterizer state, but with mirrored view matrix
+	DrawBillboards();
 
 	//DONE : 1.18. Restore view matrix to its original value
 	XMFLOAT4X4 old_view;
