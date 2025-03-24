@@ -119,8 +119,11 @@ void ButterflyDemo::CreateRenderStates()
 	m_dssStencilWrite = m_device.CreateDepthStencilState(writeDesc);
 
 	//TODO : 1.36. Setup depth stencil state for stencil test for billboards
-
-	m_dssStencilTestNoDepthWrite = m_device.CreateDepthStencilState(dssDesc);
+	DepthStencilDescription billboardTestDesc;
+	billboardTestDesc.StencilEnable = true;
+	billboardTestDesc.BackFace.StencilFunc = D3D11_COMPARISON_NEVER;
+	billboardTestDesc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+	m_dssStencilTestNoDepthWrite = m_device.CreateDepthStencilState(billboardTestDesc);
 
 	//DONE : 1.21. Setup depth stencil state for stencil test for 3D objects
 	DepthStencilDescription testDesc;
@@ -417,11 +420,30 @@ void ButterflyDemo::DrawBillboards()
 //Setup billboards rendering and draw them
 {
 	//TODO : 1.33. Setup shaders and blend state
+	SetBillboardShaders();
+	m_device.context()->OMSetBlendState(m_bsAdd.get(), nullptr, BS_MASK);
 
 	//TODO : 1.34. Draw both billboards with appropriate colors and transformations
+	XMFLOAT4X4 billboardMtx;
+
+	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+	XMStoreFloat4x4(&billboardMtx,
+		XMMatrixScaling(0.3f, 0.3f, 0.3f) *
+		XMMatrixTranslation(GREEN_LIGHT_POS.x, GREEN_LIGHT_POS.y, GREEN_LIGHT_POS.z));
+	UpdateBuffer(m_cbWorld, billboardMtx);
+	m_bilboard.Render(m_device.context());
+
+	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	XMStoreFloat4x4(&billboardMtx,
+		XMMatrixScaling(0.3f, 0.3f, 0.3f) *
+		XMMatrixTranslation(BLUE_LIGHT_POS.x, BLUE_LIGHT_POS.y, BLUE_LIGHT_POS.z));
+	UpdateBuffer(m_cbWorld, billboardMtx);
+	m_bilboard.Render(m_device.context());
 
 	//TODO : 1.35. Restore rendering state to it's original values
-
+	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	m_device.context()->OMSetBlendState(nullptr, nullptr, BS_MASK);
+	SetShaders();
 }
 
 void ButterflyDemo::DrawMirroredWorld(unsigned int i)

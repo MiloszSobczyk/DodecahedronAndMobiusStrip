@@ -26,7 +26,16 @@ PSInput main( float3 pos : POSITION )
 	o.pos = float4(pos, 1.0f);
 
 	//TODO : 1.31. Calculate on-screen position of billboard vertex
+	o.pos = mul(invViewMatrix, o.pos);
 
+	float4 a = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	a = -mul(invViewMatrix, a);
+	o.pos += a;
+	o.pos.w = 1.0f;
+
+	o.pos = mul(worldMatrix, o.pos);
+	o.pos = mul(viewMatrix, o.pos);
+	o.pos = mul(projMatrix, o.pos);
 
 	o.tex = pos.xy;
 	return o;
