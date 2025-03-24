@@ -160,7 +160,7 @@ void ButterflyDemo::CreateDodecahadronMtx()
 //Compute dodecahedronMtx and mirrorMtx
 {
     //DONE : 1.01. calculate m_dodecahedronMtx matrices
-    XMStoreFloat4x4(&m_dodecahedronMtx[0], XMMatrixRotationX(XM_PIDIV2) * XMMatrixTranslation(0.f, -DODECAHEDRON_H / 2.f, 0.f));
+    XMStoreFloat4x4(&m_dodecahedronMtx[0], XMMatrixRotationX(XM_PIDIV2) * XMMatrixTranslation(0.f, -DODECAHEDRON_H / 2.f, 0.f) * XMMatrixScaling(2.f, 2.f, 2.f));
     XMStoreFloat4x4(&m_dodecahedronMtx[1], XMLoadFloat4x4(&m_dodecahedronMtx[0]) * XMMatrixRotationY(XM_PI) * XMMatrixRotationZ(DODECAHEDRON_A - XM_PI));
 
     for (int i = 2; i <= 5; i++)
@@ -208,7 +208,7 @@ XMVECTOR ButterflyDemo::MoebiusStripDs(float t, float s)
 XMVECTOR ButterflyDemo::MoebiusStripDt(float t, float s)
 //DONE : 1.06. Compute the t-derivative of point on the Moebius strip for parameters t and s
 {
-	float dx_dt = -MOEBIUS_R * XMScalarSin(t) -0.5f * s * MOEBIUS_W * XMScalarSin(0.5f * t) * XMScalarCos(t)
+	float dx_dt = -MOEBIUS_R * XMScalarSin(t) - 0.5f * s * MOEBIUS_W * XMScalarSin(0.5f * t) * XMScalarCos(t)
 		- MOEBIUS_W * s * XMScalarCos(0.5f * t) * XMScalarSin(t);
 	float dy_dt = MOEBIUS_R * XMScalarCos(t) - 0.5f * s * MOEBIUS_W * XMScalarSin(0.5f * t) * XMScalarSin(t)
 		+ MOEBIUS_W * s * XMScalarCos(0.5f * t) * XMScalarCos(t);
@@ -365,7 +365,7 @@ void ButterflyDemo::Set3Lights()
 	};
 
 	//comment the following line when structure is filled
-	ZeroMemory(&l.lights[1], sizeof(Light) * 2);
+	//ZeroMemory(&l.lights[1], sizeof(Light) * 2);
 
 	UpdateBuffer(m_cbLighting, l);
 }
@@ -419,11 +419,11 @@ void ButterflyDemo::DrawButterfly()
 void ButterflyDemo::DrawBillboards()
 //Setup billboards rendering and draw them
 {
-	//TODO : 1.33. Setup shaders and blend state
+	//DONE : 1.33. Setup shaders and blend state
 	SetBillboardShaders();
 	m_device.context()->OMSetBlendState(m_bsAdd.get(), nullptr, BS_MASK);
 
-	//TODO : 1.34. Draw both billboards with appropriate colors and transformations
+	//DONE : 1.34. Draw both billboards with appropriate colors and transformations
 	XMFLOAT4X4 billboardMtx;
 
 	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -440,7 +440,7 @@ void ButterflyDemo::DrawBillboards()
 	UpdateBuffer(m_cbWorld, billboardMtx);
 	m_bilboard.Render(m_device.context());
 
-	//TODO : 1.35. Restore rendering state to it's original values
+	//DONE : 1.35. Restore rendering state to it's original values
 	UpdateBuffer(m_cbSurfaceColor, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	m_device.context()->OMSetBlendState(nullptr, nullptr, BS_MASK);
 	SetShaders();
@@ -467,10 +467,11 @@ void ButterflyDemo::DrawMirroredWorld(unsigned int i)
 	XMFLOAT4X4 new_view;
 	XMStoreFloat4x4(&new_view, XMLoadFloat4x4(&m_mirrorMtx[i]) * m_view);
 	UpdateCameraCB(new_view);
-	DrawMoebiusStrip();
-	DrawButterfly();
 	Set1Light();
 	DrawDodecahedron(false);
+	Set3Lights();
+	DrawMoebiusStrip();
+	DrawButterfly();
 
 	//DONE : 1.17. Restore rasterizer state to it's original value
 	m_device.context()->RSSetState(nullptr);
